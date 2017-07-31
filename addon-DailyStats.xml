@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="DailyStats" title="[MWS] Daily Statistics" version_string="1.3.4" version_id="40" url="https://mattwservices.co.uk" install_callback_class="DailyStats_Install" install_callback_method="installer" uninstall_callback_class="DailyStats_Install" uninstall_callback_method="uninstall">
+<addon addon_id="DailyStats" title="[MWS] Daily Statistics" version_string="1.3.5" version_id="41" url="https://mattwservices.co.uk" install_callback_class="DailyStats_Install" install_callback_method="installer" uninstall_callback_class="DailyStats_Install" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -322,7 +322,9 @@
     <listener event_id="load_class_controller" execute_order="30" callback_class="DailyStats_Listener" callback_method="extendCTAController" active="1" hint="CTA_FeaturedThreads_ControllerPublic_Thread" description="Extend CTA Featured Threads"/>
     <listener event_id="load_class_model" execute_order="30" callback_class="DailyStats_Listener" callback_method="extendCountersModel" active="1" hint="XenForo_Model_Counters" description="Extend CTA Featured Threads"/>
   </code_event_listeners>
-  <cron/>
+  <cron>
+    <entry entry_id="halfHourlyStats" cron_class="XenForo_CronEntry_Counters" cron_method="rebuildBoardTotals" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["0","30"]}]]></entry>
+  </cron>
   <email_templates/>
   <email_template_modifications/>
   <optiongroups>
@@ -465,6 +467,7 @@
   </permissions>
   <phrases>
     <phrase title="cron_entry_dailystatscron001" version_id="31" version_string="1.2.4a"><![CDATA[[MWS] Daily Stats Cron Entry]]></phrase>
+    <phrase title="cron_entry_halfHourlyStats" version_id="40" version_string="1.3.4"><![CDATA[Record half-hourly stats]]></phrase>
     <phrase title="daily_statistics_addon" version_id="2" version_string="1.0.1"><![CDATA[Quick Statistics]]></phrase>
     <phrase title="DS_activeUsers" version_id="36" version_string="1.3.0"><![CDATA[Active Members Today]]></phrase>
     <phrase title="DS_activeUsersMonth" version_id="20" version_string="1.2.0"><![CDATA[Active Members 30 Days]]></phrase>
