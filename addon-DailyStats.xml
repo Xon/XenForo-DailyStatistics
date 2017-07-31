@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="DailyStats" title="[MWS] Daily Statistics" version_string="1.3.2" version_id="38" url="https://mattwservices.co.uk" install_callback_class="DailyStats_Install" install_callback_method="installer" uninstall_callback_class="DailyStats_Install" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="dailystats_member_list_item"><![CDATA[<xen:require css="xenforo_member_list_item.css" />
+
+<li class="primaryContent memberListItem{xen:if $extended, ' extended'}"{xen:if $id, ' id="{$id}"'}>
+
+	<xen:avatar user="$user" size="s" class="{xen:if $noOverlay, 'NoOverlay'}" />
+
+	<xen:if is="{$extraTemplate}"><div class="extra">{xen:raw $extraTemplate}</div></xen:if>
+
+	<div class="member">
+	
+		<xen:if is="{$user.user_id}">
+		
+			<h3 class="username"><xen:username user="$user" rich="true" class="StatusTooltip{xen:if $noOverlay, ' NoOverlay'}" title="{xen:string censor, $user.status}" /></h3>
+			
+			<div class="userInfo">
+				<div class="userBlurb dimmed">{xen:helper userBlurb, $user}</div>
+				<dl class="userStats pairsInline">
+					<dt title="{xen:phrase total_messages_posted_by_x, 'name={$user.username}'}">{xen:phrase messages}:</dt> <dd>{xen:number $user.message_count}</dd>
+					<dt title="{xen:phrase number_of_times_something_posted_by_x_has_been_liked, 'name={$user.username}'}">{xen:phrase likes_received}:</dt> <dd>{xen:number $user.like_count}</dd>
+					<dt>{xen:phrase trophy_points}:</dt> <dd title="{xen:phrase trophy_points}">{xen:number $user.trophy_points}</dd>
+				</dl>
+			</div>
+			
+		<xen:elseif is="{$guestHtml}" />
+			<h3 class="username guest dimmed">{xen:raw $guestHtml}</h3>
+		<xen:else />
+			<h3 class="username guest dimmed">{xen:phrase guest}</h3>
+		</xen:if>
+		
+		<xen:if hascontent="true">
+			<div class="contentInfo"><xen:contentcheck>{xen:raw $contentTemplate}</xen:contentcheck></div>
+		</xen:if>
+		
+	</div>
+	
+</li>]]></template>
+    <template title="dailystats_member_list_item.css"><![CDATA[.memberListItem
+{
+	{xen:property memberListItem}
+}
+
+	.memberListItem .avatar,
+	.memberListItem .icon
+	{
+		{xen:property memberListItemAvatar}
+	}
+	
+	/* ----------------------- */
+	
+	.memberListItem .extra
+	{
+		{xen:property memberListItemExtra}
+	}
+
+		.memberListItem .extra .DateTime
+		{
+			display: block;
+		}
+
+		.memberListItem .extra .bigNumber
+		{
+			font-size: 250%;
+			color: {xen:property mutedTextColor};
+		}
+	
+	.memberListItem .member
+	{
+		{xen:property memberListItemMember}
+	}
+	
+	/* ----------------------- */
+		
+		.memberListItem h3.username
+		{
+			{xen:property memberListItemUsername}
+		}
+			
+		.memberListItem .username.guest
+		{
+			{xen:property memberListItemGuest}
+		}
+	
+	/* ----------------------- */
+		
+		.memberListItem .userInfo
+		{
+			{xen:property memberListItemUserInfo}
+		}
+		
+			.memberListItem .userBlurb
+			{
+			}
+		
+				.memberListItem .userBlurb .userTitle
+				{
+					{xen:property memberListItemUserTitle}
+				}
+
+			.memberListItem .userStats dt,
+			.memberListItem .userStats dd
+			{
+				white-space: nowrap;
+			}
+				
+	
+	/* ----------------------- */
+		
+		.memberListItem .member .contentInfo
+		{
+			{xen:property memberListItemContent}
+		}
+	
+	/* ----------------------- */
+	
+	
+/* extended member list items have a fixed 200px right column */
+
+.memberListItem.extended .extra
+{
+	width: {xen:property memberListItemExtendedWidth};
+}
+
+.memberListItem.extended .member
+{
+	margin-right: {xen:calc '{xen:property memberListItemExtendedWidth} + 10'}px;
+}]]></template>
+    <template title="dailystats_users_today"><![CDATA[<xen:h1>{xen:phrase DS_totalUsers}</xen:h1>
+<div class="section">
+	<xen:if is="{$newuser}">
+		<ol class="overlayScroll">
+			<xen:foreach loop="$newuser" value="$newuser">
+				<xen:include template="dailystats_member_list_item">
+					<xen:map from="$newuser" to="$user" />
+				</xen:include>
+			</xen:foreach>
+		</ol>
+	<xen:else />
+		<h2>{xen:phrase ds_no_new_users}<h2>
+	</xen:if>
+</div>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="home" modification_key="DailyStats001" description="Daily Stats in ACP Home" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[</div>
+		</div>
+		
+		<!-- slot: pre_add_ons -->]]></find>
+      <replace><![CDATA[$0
+
+<style>
+	#DailyStatistics dl
+	{
+	line-height: 1.9;
+	font-size: 11px;
+	}
+	
+	#DailyStatistics hr
+	{
+	border-top: 1px dotted rgb(150,150,150);
+	}
+</style>
+
+<div class="section" id="DailyStatistics">
+	<div class="secondaryContent statsList">
+		<h3 class="textHeading">{xen:phrase daily_statistics_addon}</h3>
+		<div class="pairsJustified">
+			<xen:if is="{$xenOptions.dailystats_acp_users} == '1'">
+				<dl>
+				<span class="label"><dt>{xen:phrase DS_totalUsers}</a>:</dt></span>
+				<xen:if is="{$boardTotals.DS_totalUsers} > 0">
+				<dd><a href="{xen:adminlink dailystats_users_today}" class="OverlayTrigger">{xen:number $boardTotals.DS_totalUsers}</a></dd></dl>
+				<xen:else />
+				<dd>{xen:number $boardTotals.DS_totalUsers}</dd></dl>
+				</xen:if>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_acp_extended} == '1'">
+			<xen:if is="{$xenOptions.dailystats_acp_users} == '1'">
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalUsersWeek}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalUsersWeek}</dd>
+				</dl>
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalUsersMonth}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalUsersMonth}</dd>
+				</dl>
+				<xen:if is="{$xenOptions.dailystats_acp_activeusers} == '1'">
+					<hr>
+                    <dl>
+						<span class="label"><dt>{xen:phrase DS_activeUsers}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_activeUsers}</dd>
+					</dl>
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_activeUsersWeek}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_activeUsersWeek}</dd>
+					</dl>
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_activeUsersMonth}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_activeUsersMonth}</dd>
+					</dl>
+				</xen:if>
+				<hr>
+			</xen:if>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_acp_discussions} == '1'">
+			<dl>
+				<span class="label"><dt>{xen:phrase DS_totalThreads}:</dt></span>
+				<dd>{xen:number $boardTotals.DS_totalThreads}</dd>
+			</dl>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_acp_extended} == '1'">
+			<xen:if is="{$xenOptions.dailystats_acp_discussions} == '1'">
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalThreadsWeek}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalThreadsWeek}</dd>
+				</dl>
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalThreadsMonth}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalThreadsMonth}</dd>
+				</dl>
+				<hr>
+			</xen:if>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_acp_messages} == '1'">
+			<dl>
+				<span class="label"><dt>{xen:phrase DS_totalPosts}:</dt></span>
+				<dd>{xen:number $boardTotals.DS_totalPosts}</dd>
+			</dl>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_acp_extended} == '1'">
+			<xen:if is="{$xenOptions.dailystats_acp_messages} == '1'">
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalPostsWeek}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalPostsWeek}</dd>
+				</dl>
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalPostsMonth}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalPostsMonth}</dd>
+				</dl>
+				<hr>
+			</xen:if>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_rm_enable} == '1'">
+			<xen:if is="{$xenOptions.dailystats_acp_resource} == '1'">
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalResource}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalResource}</dd>
+				</dl>
+			</xen:if>
+			<xen:if is="{$xenOptions.dailystats_acp_extended} == '1'">
+				<xen:if is="{$xenOptions.dailystats_acp_resource} == '1'">
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_totalResourceWeek}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_totalResourceWeek}</dd>
+					</dl>
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_totalResourceMonth}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_totalResourceMonth}</dd>
+					</dl>
+					<hr>
+				</xen:if>
+			</xen:if>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_xfmg_enable} == '1'">
+			<xen:if is="{$xenOptions.dailystats_acp_xfmg} == '1'">
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalXFMG}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalXFMG}</dd>
+				</dl>
+			</xen:if>
+			<xen:if is="{$xenOptions.dailystats_acp_extended} == '1'">
+				<xen:if is="{$xenOptions.dailystats_acp_xfmg} == '1'">
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_totalXFMGWeek}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_totalXFMGWeek}</dd>
+					</dl>
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_totalXFMGMonth}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_totalXFMGMonth}</dd>
+					</dl>
+					<hr>
+				</xen:if>
+			</xen:if>
+		</xen:if>
+		<xen:if is="{$xenOptions.dailystats_sc_enable} == '1'">
+			<xen:if is="{$xenOptions.dailystats_acp_showcase} == '1'">
+				<dl>
+					<span class="label"><dt>{xen:phrase DS_totalShowcase}:</dt></span>
+					<dd>{xen:number $boardTotals.DS_totalShowcase}</dd>
+				</dl>
+			</xen:if>
+			<xen:if is="{$xenOptions.dailystats_acp_extended} == '1'">
+				<xen:if is="{$xenOptions.dailystats_acp_showcase} == '1'">
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_totalShowcaseWeek}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_totalShowcaseWeek}</dd>
+					</dl>
+					<dl>
+						<span class="label"><dt>{xen:phrase DS_totalShowcaseMonth}:</dt></span>
+						<dd>{xen:number $boardTotals.DS_totalShowcaseMonth}</dd>
+					</dl>
+					<hr>
+				</xen:if>
+			</xen:if>
+		</xen:if>
+	</div>
+</div>
+</div>]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="DailyStats_Listener" callback_method="extendAdminHome" active="1" hint="XenForo_ControllerAdmin_Home" description="Extend Admin Home"/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="DailyStats_Listener" callback_method="extendForumController" active="1" hint="XenForo_ControllerPublic_Forum" description="Extend Forum Home Controller"/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="DailyStats_Listener" callback_method="extendCategoryController" active="1" hint="XenForo_ControllerPublic_Category" description="Extend Category Controller"/>
+    <listener event_id="load_class_controller" execute_order="20" callback_class="DailyStats_Listener" callback_method="extendThreadController" active="1" hint="XenForo_ControllerPublic_Thread" description="Extend Thread Controller"/>
+    <listener event_id="load_class_controller" execute_order="30" callback_class="DailyStats_Listener" callback_method="extendCTAController" active="1" hint="CTA_FeaturedThreads_ControllerPublic_Thread" description="Extend CTA Featured Threads"/>
+    <listener event_id="load_class_model" execute_order="30" callback_class="DailyStats_Listener" callback_method="extendCountersModel" active="1" hint="XenForo_Model_Counters" description="Extend CTA Featured Threads"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="MWSDailyStats" display_order="1" debug_only="0"/>
+    <option option_id="dailystats_acp_activeusers" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="130"/>
+    </option>
+    <option option_id="dailystats_acp_discussions" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="150"/>
+    </option>
+    <option option_id="dailystats_acp_extended" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="199"/>
+    </option>
+    <option option_id="dailystats_acp_messages" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="120"/>
+    </option>
+    <option option_id="dailystats_acp_resource" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="160"/>
+    </option>
+    <option option_id="dailystats_acp_showcase" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="180"/>
+    </option>
+    <option option_id="dailystats_acp_users" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="140"/>
+    </option>
+    <option option_id="dailystats_acp_xfmg" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="170"/>
+    </option>
+    <option option_id="dailystats_fh_discussions" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="240"/>
+    </option>
+    <option option_id="dailystats_fh_resource" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="250"/>
+    </option>
+    <option option_id="dailystats_fh_showcase" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="270"/>
+    </option>
+    <option option_id="dailystats_fh_users" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="230"/>
+    </option>
+    <option option_id="dailystats_fh_xfmg" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="260"/>
+    </option>
+    <option option_id="dailystats_fm_messages" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="210"/>
+    </option>
+    <option option_id="dailystats_forum_home" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="200"/>
+    </option>
+    <option option_id="dailystats_rm_enable" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="10"/>
+    </option>
+    <option option_id="dailystats_sc_enable" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="30"/>
+    </option>
+    <option option_id="dailystats_xfmg_enable" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="MWSDailyStats" display_order="20"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups>
+      <permission_group permission_group_id="MWSDailyStats"/>
+    </permission_groups>
+    <permissions>
+      <permission permission_group_id="MWSDailyStats" permission_id="MWSviewStats" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="500"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="cron_entry_dailystatscron001" version_id="31" version_string="1.2.4a"><![CDATA[[MWS] Daily Stats Cron Entry]]></phrase>
+    <phrase title="daily_statistics_addon" version_id="2" version_string="1.0.1"><![CDATA[Quick Statistics]]></phrase>
+    <phrase title="DS_activeUsers" version_id="36" version_string="1.3.0"><![CDATA[Active Members Today]]></phrase>
+    <phrase title="DS_activeUsersMonth" version_id="20" version_string="1.2.0"><![CDATA[Active Members 30 Days]]></phrase>    
+    <phrase title="DS_activeUsersWeek" version_id="20" version_string="1.2.0"><![CDATA[Active Members 7 Days]]></phrase>    
+    <phrase title="ds_no_new_users" version_id="20" version_string="1.2.0"><![CDATA[No New Members Today]]></phrase>
+    <phrase title="DS_totalPosts" version_id="20" version_string="1.2.0"><![CDATA[New Messages Today]]></phrase>
+    <phrase title="DS_totalPostsMonth" version_id="20" version_string="1.2.0"><![CDATA[New Messages 30 Days]]></phrase>
+    <phrase title="DS_totalPostsWeek" version_id="20" version_string="1.2.0"><![CDATA[New Messages 7 Days]]></phrase>
+    <phrase title="DS_totalResource" version_id="5" version_string="1.0.4"><![CDATA[New Resources Today]]></phrase>
+    <phrase title="DS_totalResourceMonth" version_id="5" version_string="1.0.4"><![CDATA[New Resources 30 Days]]></phrase>
+    <phrase title="DS_totalResourceWeek" version_id="5" version_string="1.0.4"><![CDATA[New Resources 7 Days]]></phrase>
+    <phrase title="DS_totalShowcase" version_id="10" version_string="1.1.0"><![CDATA[New Showcase Items Today]]></phrase>
+    <phrase title="DS_totalShowcaseMonth" version_id="10" version_string="1.1.0"><![CDATA[New Showcase Items 30 Days]]></phrase>
+    <phrase title="DS_totalShowcaseWeek" version_id="10" version_string="1.1.0"><![CDATA[New Showcase Items 7 Days]]></phrase>
+    <phrase title="DS_totalThreads" version_id="20" version_string="1.2.0"><![CDATA[New Discussions Today]]></phrase>
+    <phrase title="DS_totalThreadsMonth" version_id="20" version_string="1.2.0"><![CDATA[New Discussions 30 Days]]></phrase>
+    <phrase title="DS_totalThreadsWeek" version_id="20" version_string="1.2.0"><![CDATA[New Discussions 7 Days]]></phrase>
+    <phrase title="DS_totalUsers" version_id="20" version_string="1.2.0"><![CDATA[New Members Today]]></phrase>
+    <phrase title="DS_totalUsersMonth" version_id="20" version_string="1.2.0"><![CDATA[New Members 30 Days]]></phrase>
+    <phrase title="DS_totalUsersWeek" version_id="20" version_string="1.2.0"><![CDATA[New Members 7 Days]]></phrase>
+    <phrase title="DS_totalXFMG" version_id="31" version_string="1.2.4a"><![CDATA[New Media Today]]></phrase>
+    <phrase title="DS_totalXFMGMonth" version_id="31" version_string="1.2.4a"><![CDATA[New Media 30 Days]]></phrase>
+    <phrase title="DS_totalXFMGWeek" version_id="31" version_string="1.2.4a"><![CDATA[New Media 7 Days]]></phrase>
+    <phrase title="option_dailystats_acp_activeusers" version_id="20" version_string="1.2.0"><![CDATA[ACP Display Active User Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_activeusers_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the Active User Stats in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_discussions" version_id="20" version_string="1.2.0"><![CDATA[ACP Display New Discussions Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_discussions_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Discussion Stats in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_extended" version_id="20" version_string="1.2.0"><![CDATA[ACP Extended Statistics]]></phrase>
+    <phrase title="option_dailystats_acp_extended_explain" version_id="20" version_string="1.2.0"><![CDATA[Will also display 7 and 30 days stats in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_messages" version_id="20" version_string="1.2.0"><![CDATA[ACP Display New Messsage Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_messages_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Message Stats in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_resource" version_id="20" version_string="1.2.0"><![CDATA[ACP Display New Resource Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_resource_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Resources in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_showcase" version_id="20" version_string="1.2.0"><![CDATA[ACP Display New Showcase Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_showcase_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Showcase Items in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_users" version_id="20" version_string="1.2.0"><![CDATA[ACP Display New Member Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_users_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Member Stats in ACP]]></phrase>
+    <phrase title="option_dailystats_acp_xfmg" version_id="31" version_string="1.2.4a"><![CDATA[ACP Display New Media Stats?]]></phrase>
+    <phrase title="option_dailystats_acp_xfmg_explain" version_id="31" version_string="1.2.4a"><![CDATA[Choose whether to display the New Media in ACP]]></phrase>
+    <phrase title="option_dailystats_fh_discussions" version_id="20" version_string="1.2.0"><![CDATA[Forum Home Display New Discussions Stats?]]></phrase>
+    <phrase title="option_dailystats_fh_discussions_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Discussion Stats on Forum Home]]></phrase>
+    <phrase title="option_dailystats_fh_resource" version_id="20" version_string="1.2.0"><![CDATA[Forum Home Display New Resource Stats?]]></phrase>
+    <phrase title="option_dailystats_fh_resource_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Resources on Forum Home]]></phrase>
+    <phrase title="option_dailystats_fh_showcase" version_id="20" version_string="1.2.0"><![CDATA[Forum Home Display New Showcase Stats?]]></phrase>
+    <phrase title="option_dailystats_fh_showcase_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Showcase Items on Forum Home]]></phrase>
+    <phrase title="option_dailystats_fh_users" version_id="20" version_string="1.2.0"><![CDATA[Forum Home Display New Member Stats?]]></phrase>
+    <phrase title="option_dailystats_fh_users_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Member Stats on Forum Home]]></phrase>
+    <phrase title="option_dailystats_fh_xfmg" version_id="31" version_string="1.2.4a"><![CDATA[Forum Home Display New Media Stats?]]></phrase>
+    <phrase title="option_dailystats_fh_xfmg_explain" version_id="31" version_string="1.2.4a"><![CDATA[Choose whether to display the New Media on Forum Home]]></phrase>
+    <phrase title="option_dailystats_fm_messages" version_id="20" version_string="1.2.0"><![CDATA[Forum Home Display New Messsage Stats?]]></phrase>
+    <phrase title="option_dailystats_fm_messages_explain" version_id="20" version_string="1.2.0"><![CDATA[Choose whether to display the New Message Stats on Forum Home]]></phrase>
+    <phrase title="option_dailystats_forum_home" version_id="4" version_string="1.0.3"><![CDATA[Display on Forum Home]]></phrase>
+    <phrase title="option_dailystats_forum_home_explain" version_id="4" version_string="1.0.3"><![CDATA[Display the stats on the forum home?]]></phrase>
+    <phrase title="option_dailystats_rm_enable" version_id="6" version_string="1.0.5"><![CDATA[Resource Manager Enabled]]></phrase>
+    <phrase title="option_dailystats_rm_enable_explain" version_id="6" version_string="1.0.5"><![CDATA[Only check this if you have the Resource Manager installed]]></phrase>
+    <phrase title="option_dailystats_sc_enable" version_id="10" version_string="1.1.0"><![CDATA[Showcase Enabled]]></phrase>
+    <phrase title="option_dailystats_sc_enable_explain" version_id="10" version_string="1.1.0"><![CDATA[Only check this if you have the Showcase add-on installed]]></phrase>
+    <phrase title="option_dailystats_xfmg_enable" version_id="31" version_string="1.2.4a"><![CDATA[XF Media Gallery Enabled]]></phrase>
+    <phrase title="option_dailystats_xfmg_enable_explain" version_id="31" version_string="1.2.4a"><![CDATA[Only check this if you have the XF Media Gallery add-on installed]]></phrase>
+    <phrase title="option_group_MWSDailyStats" version_id="31" version_string="1.2.4a"><![CDATA[[MWS] Daily Statistics Options]]></phrase>
+    <phrase title="option_group_MWSDailyStats_description" version_id="31" version_string="1.2.4a"><![CDATA[Options for the Daily Stats add-on]]></phrase>
+    <phrase title="permission_group_MWSDailyStats" version_id="25" version_string="1.2.3"><![CDATA[MWS Daily Stats]]></phrase>
+    <phrase title="permission_MWSDailyStats_MWSviewStats" version_id="25" version_string="1.2.3"><![CDATA[[MWS] View Additional Stats]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="dailystats_users_today" class="DailyStats_Route_PrefixAdmin_DailyStats" build_link="data_only"/>
+    </route_type>
+    <route_type type="public">
+      <prefix original_prefix="dailystats_users_today" class="DailyStats_Route_Prefix_DailyStats" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="dailystats_users_today" version_id="20" version_string="1.2.0"><![CDATA[<xen:h1>{xen:phrase DS_totalUsers}</xen:h1>
+<div class="section">
+	<xen:if is="{$newuser}">
+		<ol class="overlayScroll">
+			<xen:foreach loop="$newuser" value="$newuser">
+				<xen:include template="member_list_item">
+					<xen:map from="$newuser" to="$user" />
+				</xen:include>
+			</xen:foreach>
+		</ol>
+	<xen:else />
+		<h2>{xen:phrase ds_no_new_users}<h2>
+	</xen:if>
+</div>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="forum_list" modification_key="DailyStats001" description="Adds Daily stats to Forum Home" execution_order="100" enabled="1" action="str_replace">
+      <find><![CDATA[<!-- slot: forum_stats_extra -->]]></find>
+      <replace><![CDATA[<!-- slot: forum_stats_extra -->
+<xen:if is="{$visitor.permissions.MWSDailyStats.MWSviewStats}">	
+	<xen:if is="{$xenOptions.dailystats_forum_home} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_users} == '1'">
+			<dl class="dstotalUsers"><dt>{xen:phrase DS_totalUsers}:</dt>
+				<xen:if is="{$boardTotals.DS_totalUsers} > 0">
+				<dd><a href="{xen:link dailystats_users_today}" class="OverlayTrigger">{xen:number $boardTotals.DS_totalUsers}</a></dd></dl>
+				<xen:else />
+			<dd>{xen:number $boardTotals.DS_totalUsers}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_fh_discussions} == '1'">
+		<dl class="dstotalThreads"><dt>{xen:phrase DS_totalThreads}:</dt>
+		<dd>{xen:number $boardTotals.DS_totalThreads}</dd></dl>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_fm_messages} == '1'">
+		<dl class="dstotalPosts"><dt>{xen:phrase DS_totalPosts}:</dt>
+		<dd>{xen:number $boardTotals.DS_totalPosts}</dd></dl>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_rm_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_resource} == '1'">
+			<dl class="dstotalResources"><dt>{xen:phrase DS_totalResource}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalResource}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_xfmg_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_xfmg} == '1'">
+			<dl class="dstotalResources"><dt>{xen:phrase DS_totalXFMG}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalXFMG}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_sc_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_showcase} == '1'">
+			<dl class="dstotalShowcase"><dt>{xen:phrase DS_totalShowcase}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalShowcase}</dd></dl>
+		</xen:if>
+	</xen:if>
+</xen:if>
+</xen:if>]]></replace>
+    </modification>
+    <modification template="wf_widget_stats" modification_key="DailyStats002" description="Adds daily stats to forum home with widget framework" execution_order="100" enabled="1" action="str_replace">
+      <find><![CDATA[<!-- slot: forum_stats_extra -->]]></find>
+      <replace><![CDATA[<!-- slot: forum_stats_extra -->
+<xen:if is="{$visitor.permissions.MWSDailyStats.MWSviewStats}">	
+	<xen:if is="{$xenOptions.dailystats_forum_home} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_users} == '1'">
+			<dl class="dstotalUsers"><dt>{xen:phrase DS_totalUsers}:</dt>
+				<xen:if is="{$boardTotals.DS_totalUsers} > 0">
+				<dd><a href="{xen:link dailystats_users_today}" class="OverlayTrigger">{xen:number $boardTotals.DS_totalUsers}</a></dd></dl>
+				<xen:else />
+			<dd>{xen:number $boardTotals.DS_totalUsers}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_fh_discussions} == '1'">
+		<dl class="dstotalThreads"><dt>{xen:phrase DS_totalThreads}:</dt>
+		<dd>{xen:number $boardTotals.DS_totalThreads}</dd></dl>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_fm_messages} == '1'">
+		<dl class="dstotalPosts"><dt>{xen:phrase DS_totalPosts}:</dt>
+		<dd>{xen:number $boardTotals.DS_totalPosts}</dd></dl>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_rm_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_resource} == '1'">
+			<dl class="dstotalResources"><dt>{xen:phrase DS_totalResource}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalResource}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_xfmg_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_xfmg} == '1'">
+			<dl class="dstotalResources"><dt>{xen:phrase DS_totalXFMG}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalXFMG}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_sc_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_showcase} == '1'">
+			<dl class="dstotalShowcase"><dt>{xen:phrase DS_totalShowcase}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalShowcase}</dd></dl>
+		</xen:if>
+	</xen:if>
+</xen:if>
+</xen:if>]]></replace>
+    </modification>
+    <modification template="cta_featuredthreads_featured" modification_key="DailyStats004" description="Adds Daily stats to Forum Home CTA Featured Threads" execution_order="100" enabled="1" action="str_replace">
+      <find><![CDATA[<dd><xen:username user="$boardTotals.latestUser" /></dd></dl>]]></find>
+      <replace><![CDATA[<dd><xen:username user="$boardTotals.latestUser" /></dd></dl>
+<xen:if is="{$visitor.permissions.MWSDailyStats.MWSviewStats}">	
+	<xen:if is="{$xenOptions.dailystats_forum_home} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_users} == '1'">
+			<dl class="dstotalUsers"><dt>{xen:phrase DS_totalUsers}:</dt>
+				<xen:if is="{$boardTotals.DS_totalUsers} > 0">
+				<dd><a href="{xen:link dailystats_users_today}" class="OverlayTrigger">{xen:number $boardTotals.DS_totalUsers}</a></dd></dl>
+				<xen:else />
+			<dd>{xen:number $boardTotals.DS_totalUsers}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_fh_discussions} == '1'">
+		<dl class="dstotalThreads"><dt>{xen:phrase DS_totalThreads}:</dt>
+		<dd>{xen:number $boardTotals.DS_totalThreads}</dd></dl>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_fm_messages} == '1'">
+		<dl class="dstotalPosts"><dt>{xen:phrase DS_totalPosts}:</dt>
+		<dd>{xen:number $boardTotals.DS_totalPosts}</dd></dl>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_rm_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_resource} == '1'">
+			<dl class="dstotalResources"><dt>{xen:phrase DS_totalResource}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalResource}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_xfmg_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_xfmg} == '1'">
+			<dl class="dstotalResources"><dt>{xen:phrase DS_totalXFMG}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalXFMG}</dd></dl>
+		</xen:if>
+	</xen:if>
+	<xen:if is="{$xenOptions.dailystats_sc_enable} == '1'">
+		<xen:if is="{$xenOptions.dailystats_fh_showcase} == '1'">
+			<dl class="dstotalShowcase"><dt>{xen:phrase DS_totalShowcase}:</dt>
+			<dd>{xen:number $boardTotals.DS_totalShowcase}</dd></dl>
+		</xen:if>
+	</xen:if>
+</xen:if>
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
