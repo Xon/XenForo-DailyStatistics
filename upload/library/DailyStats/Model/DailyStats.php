@@ -8,7 +8,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchOne('
         SELECT COUNT(*)
         FROM xf_post
-        WHERE post_date > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE post_date > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         AND message_state = \'visible\'
         ');
     }
@@ -39,7 +39,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchOne('
         SELECT COUNT(*)
         FROM xf_thread
-        WHERE post_date > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE post_date > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         AND discussion_state = \'visible\'
         ');
     }
@@ -70,7 +70,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchOne('
         SELECT COUNT(*)
         FROM xf_user
-        WHERE register_date > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE register_date > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         AND user_state = \'valid\' AND is_banned = \'0\'
         ');
     }
@@ -80,7 +80,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchAll('
         SELECT *
         FROM xf_user
-        WHERE register_date > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE register_date > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         AND user_state = \'valid\' AND is_banned = \'0\'
         ORDER BY register_date DESC
         ');
@@ -112,7 +112,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchOne('
         SELECT COUNT(*)
         FROM xf_resource
-        WHERE resource_date > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE resource_date > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         AND resource_state = \'visible\'
         ');
     }
@@ -174,7 +174,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchOne('
         SELECT COUNT(*)
         FROM xf_nflj_showcase_item
-        WHERE date_added > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE date_added > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         AND item_state = \'visible\'
         ');
     }
@@ -205,7 +205,7 @@ class DailyStats_Model_DailyStats extends XenForo_Model
         return $this->_getDb()->fetchOne('
         SELECT COUNT(*)
         FROM xf_user
-        WHERE last_activity > UNIX_TIMESTAMP(CURDATE( ))
+        WHERE last_activity > UNIX_TIMESTAMP(DATE_SUB( NOW( ) , INTERVAL 1 DAY ))
         ');
     }
 

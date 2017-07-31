@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="DailyStats" title="[MWS] Daily Statistics" version_string="1.3.2" version_id="38" url="https://mattwservices.co.uk" install_callback_class="DailyStats_Install" install_callback_method="installer" uninstall_callback_class="DailyStats_Install" uninstall_callback_method="uninstall">
+<addon addon_id="DailyStats" title="[MWS] Daily Statistics" version_string="1.3.3" version_id="39" url="https://mattwservices.co.uk" install_callback_class="DailyStats_Install" install_callback_method="installer" uninstall_callback_class="DailyStats_Install" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -467,8 +467,8 @@
     <phrase title="cron_entry_dailystatscron001" version_id="31" version_string="1.2.4a"><![CDATA[[MWS] Daily Stats Cron Entry]]></phrase>
     <phrase title="daily_statistics_addon" version_id="2" version_string="1.0.1"><![CDATA[Quick Statistics]]></phrase>
     <phrase title="DS_activeUsers" version_id="36" version_string="1.3.0"><![CDATA[Active Members Today]]></phrase>
-    <phrase title="DS_activeUsersMonth" version_id="20" version_string="1.2.0"><![CDATA[Active Members 30 Days]]></phrase>    
-    <phrase title="DS_activeUsersWeek" version_id="20" version_string="1.2.0"><![CDATA[Active Members 7 Days]]></phrase>    
+    <phrase title="DS_activeUsersMonth" version_id="20" version_string="1.2.0"><![CDATA[Active Members 30 Days]]></phrase>
+    <phrase title="DS_activeUsersWeek" version_id="20" version_string="1.2.0"><![CDATA[Active Members 7 Days]]></phrase>
     <phrase title="ds_no_new_users" version_id="20" version_string="1.2.0"><![CDATA[No New Members Today]]></phrase>
     <phrase title="DS_totalPosts" version_id="20" version_string="1.2.0"><![CDATA[New Messages Today]]></phrase>
     <phrase title="DS_totalPostsMonth" version_id="20" version_string="1.2.0"><![CDATA[New Messages 30 Days]]></phrase>
